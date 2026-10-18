@@ -70,7 +70,11 @@ addEventListener('pointermove', e => {
         orbitPitch = THREE.MathUtils.clamp(orbitPitch + e.movementY * 0.003, -0.2, 1.1);
     }
 });
-renderer.domElement.addEventListener('click', () => renderer.domElement.requestPointerLock());
+renderer.domElement.addEventListener('click', () => {
+    keys.clear();
+    renderer.domElement.requestPointerLock();
+});
+document.addEventListener('pointerlockchange', () => keys.clear());
 
 let character, mixer, walkAction, idleAction, runAction;
 const clock = new THREE.Clock();

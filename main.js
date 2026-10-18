@@ -34,13 +34,15 @@ sun.shadow.normalBias = 0.02;
 scene.add(sun);
 scene.add(sun.target);
 
-const mapSize = 160;
+// Keep the recentered tile larger than the camera's visible range so its edge
+// stays beyond the fog while the character moves through the world.
+const mapSize = 1000;
 const ground = new THREE.Mesh(new THREE.PlaneGeometry(mapSize, mapSize), new THREE.MeshStandardMaterial({ color: 0x26354a, roughness: 0.95 }));
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
 
-const grid = new THREE.GridHelper(mapSize, 80, 0x52709d, 0x31435e);
+const grid = new THREE.GridHelper(mapSize, 200, 0x52709d, 0x31435e);
 
 grid.position.y = 0.01;
 scene.add(grid);

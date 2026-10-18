@@ -139,6 +139,15 @@ function updateCharacter(delta) {
     const moving = direction.lengthSq() > 0;
     if (moving) {
         direction.normalize();
+        const inputX = direction.x;
+        const inputZ = direction.z;
+        const sinYaw = Math.sin(orbitYaw);
+        const cosYaw = Math.cos(orbitYaw);
+        direction.set(
+            inputX * cosYaw + inputZ * sinYaw,
+            0,
+            -inputX * sinYaw + inputZ * cosYaw,
+        );
         const running = keys.has('Shift');
         character.position.addScaledVector(direction, (running ? 9 : 3.2) * delta);
         character.rotation.y = Math.atan2(direction.x, direction.z);

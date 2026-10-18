@@ -59,14 +59,16 @@ addEventListener('wheel', e => {
     cameraDistance = THREE.MathUtils.clamp(cameraDistance + e.deltaY * 0.01, 3.5, 15);
 }, { passive: true });
 
-let character, mixer, walkAction, idleAction;
+let character, mixer, walkAction, idleAction, runAction;
 const clock = new THREE.Clock();
 const direction = new THREE.Vector3();
 const targetCamera = new THREE.Vector3();
 
 function playAction(nextAction) {
     if (!nextAction || nextAction.isRunning()) return;
-    const current = walkAction?.isRunning() ? walkAction : idleAction?.isRunning() ? idleAction : null;
+    const current = runAction?.isRunning() ? runAction
+        : walkAction?.isRunning() ? walkAction
+            : idleAction?.isRunning() ? idleAction : null;
     if (current) current.fadeOut(0.15);
     nextAction.reset().fadeIn(0.15).play();
 }
@@ -88,10 +90,16 @@ new FBXLoader().load('./public/models/character.fbx', object => {
         if (idleObject.animations[0]) {
             idleAction = mixer.clipAction(idleObject.animations[0]);
             playAction(idleAction);
-            status.textContent = 'Ready — arrow keys walk, idle when stopped';
+            status.textContent = 'Ready — arrows/WASD walk, Shift runs';
         }
     }, undefined, () => {
         status.textContent = 'Ready — add idle.fbx for standing mode';
+    });
+    new FBXLoader().load('./public/models/Running.fbx', runningObject => {
+        const clip = runningObject.animations.find(animation => /run/i.test(animation.name)) ?? runningObject.animations[0];
+        if (clip) runAction = mixer.clipAction(clip);
+    }, undefined, () => {
+        status.textContent = 'Ready — add Running.fbx for running mode';
     });
 }, undefined, () => {
     status.textContent = 'Add your Mixamo file at public/models/character.fbx';
@@ -100,16 +108,17 @@ new FBXLoader().load('./public/models/character.fbx', object => {
 function updateCharacter(delta) {
     if (!character) return;
     direction.set(0, 0, 0);
-    if (keys.has('ArrowUp')) direction.z -= 1;
-    if (keys.has('ArrowDown')) direction.z += 1;
-    if (keys.has('ArrowLeft')) direction.x -= 1;
-    if (keys.has('ArrowRight')) direction.x += 1;
+    if (keys.has('ArrowUp') || keys.has('w') || keys.has('W')) direction.z -= 1;
+    if (keys.has('ArrowDown') || keys.has('s') || keys.has('S')) direction.z += 1;
+    if (keys.has('ArrowLeft') || keys.has('a') || keys.has('A')) direction.x -= 1;
+    if (keys.has('ArrowRight') || keys.has('d') || keys.has('D')) direction.x += 1;
     const moving = direction.lengthSq() > 0;
     if (moving) {
         direction.normalize();
-        character.position.addScaledVector(direction, 3.2 * delta);
+        const running = keys.has('Shift');
+        character.position.addScaledVector(direction, (running ? 6 : 3.2) * delta);
         character.rotation.y = Math.atan2(direction.x, direction.z);
-        playAction(walkAction);
+        playAction(running && runAction ? runAction : walkAction);
     } else {
         playAction(idleAction);
         if (!idleAction && walkAction) walkAction.paused = true;

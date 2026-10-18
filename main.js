@@ -15,20 +15,32 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
 scene.add(new THREE.HemisphereLight(0xa9c8ff, 0x334422, 2.2));
 const sun = new THREE.DirectionalLight(0xffffff, 3.2);
 sun.position.set(7, 12, 5);
 sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.near = 1;
+sun.shadow.camera.far = 70;
+sun.shadow.camera.left = -24;
+sun.shadow.camera.right = 24;
+sun.shadow.camera.top = 24;
+sun.shadow.camera.bottom = -24;
+sun.shadow.bias = -0.0002;
+sun.shadow.normalBias = 0.02;
 scene.add(sun);
+scene.add(sun.target);
 
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(160, 160), new THREE.MeshStandardMaterial({ color: 0x26354a, roughness: 0.95 }));
+const mapSize = 160;
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(mapSize, mapSize), new THREE.MeshStandardMaterial({ color: 0x26354a, roughness: 0.95 }));
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
 
-const grid = new THREE.GridHelper(160, 80, 0x52709d, 0x31435e);
+const grid = new THREE.GridHelper(mapSize, 80, 0x52709d, 0x31435e);
 
 grid.position.y = 0.01;
 scene.add(grid);
@@ -103,6 +115,15 @@ function updateCharacter(delta) {
 }
 function updateCamera() {
     if (!character) return;
+    const tileX = Math.floor(character.position.x / mapSize + 0.5) * mapSize;
+    const tileZ = Math.floor(character.position.z / mapSize + 0.5) * mapSize;
+    ground.position.set(tileX, 0, tileZ);
+    grid.position.set(tileX, 0.01, tileZ);
+
+    sun.position.set(character.position.x + 7, character.position.y + 12, character.position.z + 5);
+    sun.target.position.copy(character.position);
+    sun.target.updateMatrixWorld();
+
     targetCamera.set(character.position.x, character.position.y + 3.8, character.position.z + cameraDistance);
     camera.position.lerp(targetCamera, 0.08);
     camera.lookAt(character.position.x, character.position.y + 1.2, character.position.z);

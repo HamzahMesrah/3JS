@@ -1,0 +1,8 @@
+:root { font-family: Inter, system-ui, sans-serif; color: #eef3ff; background: #0d1220; }
+* { box-sizing: border-box; }
+body { margin: 0; overflow: hidden; }
+canvas { display: block; }
+#hud { position: fixed; z-index: 1; top: 18px; left: 18px; padding: 14px 18px; border: 1px solid #ffffff26; border-radius: 14px; background: #10182bcc; backdrop-filter: blur(8px); box-shadow: 0 8px 30px #0005; }
+h1 { margin: 0 0 6px; font-size: 1.1rem; }
+p { margin: 5px 0; color: #b9c7e8; font-size: .9rem; }
+kbd { display: inline-block; min-width: 1.6em; margin: 0 2px; padding: 2px 5px; border: 1px solid #7382a8; border-radius: 5px; color: #fff; text-align: center; }

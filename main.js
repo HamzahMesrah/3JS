@@ -75,7 +75,7 @@ addEventListener('pointerdown', e => {
 });
 addEventListener('pointermove', e => {
     if (!dragging) return;
-    orbitYaw -= (e.clientX - lastPointerX) * 0.008;
+    orbitYaw += (e.clientX - lastPointerX) * 0.008;
     orbitPitch = THREE.MathUtils.clamp(orbitPitch - (e.clientY - lastPointerY) * 0.006, -0.2, 1.1);
     lastPointerX = e.clientX;
     lastPointerY = e.clientY;

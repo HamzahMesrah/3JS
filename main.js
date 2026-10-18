@@ -65,11 +65,12 @@ addEventListener('wheel', e => {
     cameraDistance = THREE.MathUtils.clamp(cameraDistance + e.deltaY * 0.01, 3.5, 15);
 }, { passive: true });
 addEventListener('pointermove', e => {
-    const horizontal = e.clientX / innerWidth - 0.5;
-    const vertical = 0.5 - e.clientY / innerHeight;
-    orbitYaw = horizontal * 1.6;
-    orbitPitch = THREE.MathUtils.clamp(0.35 + vertical * 0.8, -0.2, 1.1);
+    if (document.pointerLockElement === renderer.domElement) {
+        orbitYaw -= e.movementX * 0.004;
+        orbitPitch = THREE.MathUtils.clamp(orbitPitch + e.movementY * 0.003, -0.2, 1.1);
+    }
 });
+renderer.domElement.addEventListener('click', () => renderer.domElement.requestPointerLock());
 
 let character, mixer, walkAction, idleAction, runAction;
 const clock = new THREE.Clock();

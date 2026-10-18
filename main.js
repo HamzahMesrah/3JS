@@ -55,6 +55,10 @@ addEventListener('keydown', e => {
     keys.add(e.key);
 });
 addEventListener('keyup', e => keys.delete(e.key));
+addEventListener('blur', () => keys.clear());
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) keys.clear();
+});
 addEventListener('wheel', e => {
     cameraDistance = THREE.MathUtils.clamp(cameraDistance + e.deltaY * 0.01, 3.5, 15);
 }, { passive: true });

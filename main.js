@@ -120,7 +120,7 @@ function updateCharacter(delta) {
     if (moving) {
         direction.normalize();
         const running = keys.has('Shift');
-        character.position.addScaledVector(direction, (running ? 6 : 3.2) * delta);
+        character.position.addScaledVector(direction, (running ? 9 : 3.2) * delta);
         character.rotation.y = Math.atan2(direction.x, direction.z);
         playAction(running && runAction ? runAction : walkAction);
     } else {

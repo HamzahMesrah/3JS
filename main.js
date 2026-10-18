@@ -52,9 +52,6 @@ const keys = new Set();
 let cameraDistance = 7.5;
 let orbitYaw = 0;
 let orbitPitch = 0.35;
-let dragging = false;
-let lastPointerX = 0;
-let lastPointerY = 0;
 addEventListener('keydown', e => {
     if (e.key.startsWith('Arrow')) e.preventDefault();
     keys.add(e.key);
@@ -67,21 +64,12 @@ document.addEventListener('visibilitychange', () => {
 addEventListener('wheel', e => {
     cameraDistance = THREE.MathUtils.clamp(cameraDistance + e.deltaY * 0.01, 3.5, 15);
 }, { passive: true });
-addEventListener('pointerdown', e => {
-    if (e.button !== 0) return;
-    dragging = true;
-    lastPointerX = e.clientX;
-    lastPointerY = e.clientY;
-});
 addEventListener('pointermove', e => {
-    if (!dragging) return;
-    orbitYaw += (e.clientX - lastPointerX) * 0.008;
-    orbitPitch = THREE.MathUtils.clamp(orbitPitch - (e.clientY - lastPointerY) * 0.006, -0.2, 1.1);
-    lastPointerX = e.clientX;
-    lastPointerY = e.clientY;
+    const horizontal = e.clientX / innerWidth - 0.5;
+    const vertical = 0.5 - e.clientY / innerHeight;
+    orbitYaw = horizontal * 1.6;
+    orbitPitch = THREE.MathUtils.clamp(0.35 + vertical * 0.8, -0.2, 1.1);
 });
-addEventListener('pointerup', () => dragging = false);
-addEventListener('pointercancel', () => dragging = false);
 
 let character, mixer, walkAction, idleAction, runAction;
 const clock = new THREE.Clock();

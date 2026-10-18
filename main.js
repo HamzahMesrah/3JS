@@ -50,6 +50,11 @@ scene.add(grid);
 const keys = new Set();
 
 let cameraDistance = 7.5;
+let orbitYaw = 0;
+let orbitPitch = 0.35;
+let dragging = false;
+let lastPointerX = 0;
+let lastPointerY = 0;
 addEventListener('keydown', e => {
     if (e.key.startsWith('Arrow')) e.preventDefault();
     keys.add(e.key);
@@ -62,6 +67,21 @@ document.addEventListener('visibilitychange', () => {
 addEventListener('wheel', e => {
     cameraDistance = THREE.MathUtils.clamp(cameraDistance + e.deltaY * 0.01, 3.5, 15);
 }, { passive: true });
+addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    dragging = true;
+    lastPointerX = e.clientX;
+    lastPointerY = e.clientY;
+});
+addEventListener('pointermove', e => {
+    if (!dragging) return;
+    orbitYaw -= (e.clientX - lastPointerX) * 0.008;
+    orbitPitch = THREE.MathUtils.clamp(orbitPitch - (e.clientY - lastPointerY) * 0.006, -0.2, 1.1);
+    lastPointerX = e.clientX;
+    lastPointerY = e.clientY;
+});
+addEventListener('pointerup', () => dragging = false);
+addEventListener('pointercancel', () => dragging = false);
 
 let character, mixer, walkAction, idleAction, runAction;
 const clock = new THREE.Clock();
@@ -139,7 +159,12 @@ function updateCamera() {
     sun.target.position.copy(character.position);
     sun.target.updateMatrixWorld();
 
-    targetCamera.set(character.position.x, character.position.y + 3.8, character.position.z + cameraDistance);
+    const horizontalDistance = Math.cos(orbitPitch) * cameraDistance;
+    targetCamera.set(
+        character.position.x + Math.sin(orbitYaw) * horizontalDistance,
+        character.position.y + 1.8 + Math.sin(orbitPitch) * cameraDistance,
+        character.position.z + Math.cos(orbitYaw) * horizontalDistance,
+    );
     camera.position.lerp(targetCamera, 0.08);
     camera.lookAt(character.position.x, character.position.y + 1.2, character.position.z);
 }
